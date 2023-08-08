@@ -1,0 +1,28 @@
+[
+    {
+      "name": "Smartphone",
+      "description": "High-performance smartphone with advanced features.",
+      "price": 399.99,
+      "stockQuantity": 50
+    },
+    {
+      "name": "Laptop",
+      "description": "Thin and lightweight laptop with powerful processing.",
+      "price": 999.99,
+      "stockQuantity": 75
+    },
+    {
+      "name": "Wireless Earbuds",
+      "description": "True wireless earbuds with noise cancellation technology.",
+      "price": 89.99,
+      "stockQuantity": 100
+    },
+    {
+      "name": "Smart Watch",
+      "description": "Fitness tracker and smartwatch with customizable watch faces.",
+      "price": 149.99,
+      "stockQuantity": 25
+    }
+
+  ]
+  
