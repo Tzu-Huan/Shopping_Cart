@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Shopping Cart Home Page</title>
+</head>
+<body>
+  <h1>Welcome to the Shopping Cart</h1>
+  
+  <!-- <label for="customerSelect">Select Customer:</label>
+  <select id="customerSelect" action="/start-shopping" method="POST">
+    <option value="customer1">Customer 1</option>
+    <option value="customer2">Customer 2</option>
+    <option value="customer3">Customer 3</option>
+
+  </select>
+  
+  <button id="startShoppingBtn">Start Shopping</button> -->
+
+
+  <!-- ... existing code ... -->
+<form id="customerForm" action="/start-shopping" method="post">
+  <label for="customerSelect">Select Customer:</label>
+  <select id="customerSelect" name="customer">
+    <option value="customer1">Customer 1</option>
+    <option value="customer2">Customer 2</option>
+    <option value="customer3">Customer 3</option>
+    <!-- Add more customer options as needed -->
+  </select>
+  <button type="submit">Start Shopping</button>
+</form>
+
+</body>
+</html>
