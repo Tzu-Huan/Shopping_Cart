@@ -1,66 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Customer Interface</title>
-</head>
-<body>
-  <h1>Welcome to the Customer Interface</h1>
-  
-  <!-- Search Products -->
-  <label for="searchInput">Search Product:</label>
-  <input type="text" id="searchInput">
-  <button id="searchBtn">Search</button>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="./customer_interface.js" defer></script>
+    <title>Customer Interface</title>
+  </head>
+  <body>
+    <h1>Welcome to the Customer Interface</h1>
+    
+    <!-- Search Products -->
+    <label for="searchInput">Search Product:</label>
+    <input type="text" id="searchInput">
+    <button id="searchBtn">Search</button>
+
+    <!-- Product List -->
+    <div id="searchProduct"></div>
+
+    <!-- Shopping Cart -->
+    <h2>Shopping Cart</h2>
+    <ul id="shoppingCart"></ul>
+    <p>Total: $<span id="cartTotal">0.00</span></p>
+    <button id="submitOrderBtn">Submit Order</button>
+
+    <!-- My Orders -->
+    <h2>My Orders</h2>
+    <ul id="orderHistory"></ul>
+    <!-- ... existing code ... -->
 
   <!-- Product List -->
-  <div id="productList"></div>
-
-  <!-- Shopping Cart -->
-  <h2>Shopping Cart</h2>
-  <ul id="shoppingCart"></ul>
-  <button id="submitOrderBtn">Submit Order</button>
-
-  <!-- My Orders -->
-  <h2>My Orders</h2>
-  <ul id="orderHistory"></ul>
-  <!-- ... existing code ... -->
-
-<!-- Product List -->
-<h2>Product List</h2>
-<ul id="productList"></ul>
-
-<!-- ... rest of the code ... -->
-
-<script>
-  async function displayProductList() {
-    try {
-      const response = await fetch('/products'); // Fetch products from the server
-      const products = await response.json();
-
-      const productList = document.getElementById('productList');
-      productList.innerHTML = ''; // Clear any previous entries
-
-      products.forEach(product => {
-        const listItem = document.createElement('li');
-        listItem.innerHTML = `
-          <strong>${product.name}</strong><br>
-          ID: ${product._id}<br>
-          Description: ${product.description}<br>
-          Price: $${product.price}<br>
-          Stock Quantity: ${product.stockQuantity}
-        `;
-        productList.appendChild(listItem);
-      });
-    } catch (error) {
-      console.error('Error fetching product list:', error);
-    }
-  }
-
-  displayProductList();
-</script>
-
-  <!-- Links -->
-  <a href="index.html">Home</a>
-</body>
+    <h2>Product List</h2>
+    <ul id="productList"></ul>
+      <!-- Links -->
+      <a href="index.html">Home</a>
+  </body>
 </html>
+
+<!-- 
+// ID: ${product._id}<br>
+// Description: ${product.description}<br>
+// Price: $${product.price}<br>
+// Stock Quantity: ${product.stockQuantity} -->
+
