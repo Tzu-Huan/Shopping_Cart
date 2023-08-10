@@ -24,6 +24,41 @@
   <!-- My Orders -->
   <h2>My Orders</h2>
   <ul id="orderHistory"></ul>
+  <!-- ... existing code ... -->
+
+<!-- Product List -->
+<h2>Product List</h2>
+<ul id="productList"></ul>
+
+<!-- ... rest of the code ... -->
+
+<script>
+  async function displayProductList() {
+    try {
+      const response = await fetch('/products'); // Fetch products from the server
+      const products = await response.json();
+
+      const productList = document.getElementById('productList');
+      productList.innerHTML = ''; // Clear any previous entries
+
+      products.forEach(product => {
+        const listItem = document.createElement('li');
+        listItem.innerHTML = `
+          <strong>${product.name}</strong><br>
+          ID: ${product._id}<br>
+          Description: ${product.description}<br>
+          Price: $${product.price}<br>
+          Stock Quantity: ${product.stockQuantity}
+        `;
+        productList.appendChild(listItem);
+      });
+    } catch (error) {
+      console.error('Error fetching product list:', error);
+    }
+  }
+
+  displayProductList();
+</script>
 
   <!-- Links -->
   <a href="index.html">Home</a>

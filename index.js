@@ -1,4 +1,26 @@
 const express = require('express');
+const mongoose = require('mongoose');
+const { Product, insertSampleProducts } = require('./initDB.js'); // Import the Product model and insertSampleProducts function
+// ... other imports and app setup ...
+
+(async () => {
+  try {
+    await mongoose.connect('mongodb://127.0.0.1:27017/shopping_cart', {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
+
+    // Call the insertSampleProducts function to insert sample products if the database is empty
+    await insertSampleProducts();
+
+
+  } catch (error) {
+    console.error('Error connecting to the database:', error);
+  }
+})();
+
+
+
 const path = require('path');
 const bodyParser = require("body-parser");
 
@@ -16,9 +38,11 @@ app.get('/', (req, res) => {
   console.log(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.get('/customer_interface.html', (req, res) => {
+app.get('/customer_interface.html', async(req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'customer_interface.html'));
   });
+
+
 // Custom route for handling the Start Shopping form submission
 app.post('/start-shopping', (req, res) => {
     const selectedCustomer = req.body.customer;
@@ -30,10 +54,13 @@ app.post('/start-shopping', (req, res) => {
     }
   });
 
-app.listen(3000, function(){
+app.get('/products', async(req, res) => {
+    const result = await Product.find();
+    // res.send({"products": result});
+    res.send(result);
+})
+
+
+app.listen(3000, () => {
     console.log('http://localhost:3000 Server running on port 3000');
-  });
-  
-
-
-  
+});
