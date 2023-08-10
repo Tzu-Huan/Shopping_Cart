@@ -25,7 +25,7 @@ const path = require('path');
 const bodyParser = require("body-parser");
 
 var app = express();
-
+app.use(express.static('public'));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
