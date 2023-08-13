@@ -164,6 +164,108 @@ function removeFromCart(productId) {
   cartItems = cartItems.filter(item => item.product._id !== productId);
   updateCartDisplay();
 }
+function adjustCartItemQuantity(productId, quantityChange) {
+  console.log(productId,quantityChange);
+  const cartItem = cartItems.find(item => item.product._id === productId);
+
+  if (cartItem) {
+    const newQuantity = cartItem.quantity + quantityChange;
+
+    if (newQuantity > 0 && newQuantity <= cartItem.product.stockQuantity) {
+      cartItem.quantity = newQuantity;
+      updateCartDisplay();
+    } else {
+      alert("Invalid quantity or insufficient stock.");
+    }
+  }
+}
+
+// Assuming the URL is like "/customer_interface.html?customer=123"
+function getCustomerFromQuery() {
+  const urlParams = new URLSearchParams(window.location.search);
+  return urlParams.get('customer'); // Returns the value of the "customer" query parameter
+}
+
+// Event listener for submitting order
+submitOrderBtn.addEventListener("click", async () => {
+  if (cartItems.length === 0) {
+    alert("Your cart is empty. Add items before submitting an order.");
+    return;
+  }
+
+  try {
+
+    const customer = getCustomerFromQuery(); // Get customer ID from query or session
+    console.log(customer);
+    console.log('still good 1');
+    // let orderItems = cartItems.map(cartItem => ({
+    //   product: cartItem.product.name, // Assuming product._id is the ID field of the product
+    //   quantity: cartItem.quantity
+    // }));
+    // console.log('orderItems:', orderItems);
+    // let order = {
+    //   customer: customer,
+    //   orderItems: orderItems
+    // };
+    const response = await fetch('/submit-order', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      // body: JSON.stringify({ customerId: customer, cartItems: cartItems }),
+      body: JSON.stringify({ cartItems, customer }), // Send both cartItems and customerId
+    });
+    console.log('response');
+    console.log(response);
+
+    if (response.ok) {
+      // Successfully submitted order, clear cart and update display
+      cartItems = [];
+      updateCartDisplay();
+      alert("Order submitted successfully!");
+      location.reload();
+    } else {
+      alert("Failed to submit order. Please try again.");
+    }
+
+  } catch (error) {
+    console.error("Error submitting order:", error);
+    alert("An error occurred while submitting the order.");
+  }
+});
+
+
+
+// Function to fetch and display order history
+async function fetchOrderHistory(customerId) {
+  try {
+    const response = await fetch(`/order-history?customerId=${customerId}`);
+    const orders = await response.json();
+
+    // Display orders on the webpage
+    const orderHistory = document.getElementById('orderHistory');
+    orderHistory.innerHTML = '';
+
+    orders.forEach(order => {
+      const orderItem = document.createElement('li');
+      orderItem.innerHTML = `
+        <strong>Order Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}<br>
+        <strong>Total Amount:</strong> $${order.totalAmount.toFixed(2)}<br>
+        <strong>Products:</strong><br>
+        ${order.products.map(product => `${product.name} - Quantity: ${product.quantity}`).join('<br>')}
+        <hr>
+      `;
+      orderHistory.appendChild(orderItem);
+    });
+  } catch (error) {
+    console.error('Error fetching order history:', error);
+  }
+}
+
+// Assuming the URL is like "/customer_interface.html?customer=123"
+const customer = getCustomerFromQuery();
+fetchOrderHistory(customer);
+
 
 
 // // Add event listeners for quantity input changes
@@ -197,21 +299,7 @@ function removeFromCart(productId) {
 //   }
 // }
 
-function adjustCartItemQuantity(productId, quantityChange) {
-  console.log(productId,quantityChange);
-  const cartItem = cartItems.find(item => item.product._id === productId);
 
-  if (cartItem) {
-    const newQuantity = cartItem.quantity + quantityChange;
-
-    if (newQuantity > 0 && newQuantity <= cartItem.product.stockQuantity) {
-      cartItem.quantity = newQuantity;
-      updateCartDisplay();
-    } else {
-      alert("Invalid quantity or insufficient stock.");
-    }
-  }
-}
 
 // ... (rest of the code)
 

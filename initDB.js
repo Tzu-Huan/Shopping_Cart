@@ -20,6 +20,28 @@ const productSchema = new mongoose.Schema({
 // Create a model for the product
 const Product = mongoose.model('Product', productSchema);
 
+// Create a schema for the orders
+// Create a schema for the orders
+const orderSchema = new mongoose.Schema({
+  // customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
+  customer: { type: String, ref: 'Customer' },
+  products: [{ 
+    product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' }, // Change the type to ObjectId
+    quantity: { type: Number, required: true }
+  }],
+  totalAmount: { type: Number, required: true },
+  orderDate: { type: Date, default: Date.now }
+});
+
+
+// Create a model for the Order
+const Order = mongoose.model('Order', orderSchema);
+
+const customerSchema = new mongoose.Schema({
+  name: String,
+});
+
+const Customer = mongoose.model('Customer', customerSchema);
 // Read and parse the JSON data
 const productsData = fs.readFileSync(path.join(__dirname, 'products.json'), 'utf8');
 const sampleProducts = JSON.parse(productsData);
@@ -42,7 +64,7 @@ async function insertSampleProducts() {
   }
 }
 
-module.exports = { Product, insertSampleProducts }; // Export the Product model and insertSampleProducts function
+module.exports = { Product, insertSampleProducts, Order, Customer }; // Export the Product model and insertSampleProducts function
 
 
 // // Insert sample products into the database

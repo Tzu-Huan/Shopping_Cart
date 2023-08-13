@@ -1,8 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { Product, insertSampleProducts } = require('./initDB.js'); // Import the Product model and insertSampleProducts function
+const { Product, insertSampleProducts, Order, Customer } = require('./initDB.js'); // Import the Product model and insertSampleProducts function
 // ... other imports and app setup ...
-
+const { Types } = mongoose;
 (async () => {
   try {
     await mongoose.connect('mongodb://127.0.0.1:27017/shopping_cart', {
@@ -59,6 +59,92 @@ app.get('/products', async(req, res) => {
     // res.send({"products": result});
     res.send(result);
 })
+
+// Define a function to get cart items for a specific customer
+async function getCartItemsForCustomer(customerId) {
+  try {
+    const customer = await Customer.findById(customerId); // Assuming you have a Customer model
+    if (customer) {
+      return customer.cartItems; // Assuming the customer model has a "cartItems" field
+    } else {
+      return [];
+    }
+  } catch (error) {
+    console.error('Error fetching cart items:', error);
+    return [];
+  }
+}
+
+// Custom route for handling order submission
+app.post('/submit-order', async (req, res) => {
+  let cartItems = req.body.cartItems; // Get the cart items from the request body
+  let customerId = req.body.customer;
+  console.log('id');
+  console.log(customerId);
+  if (!Array.isArray(cartItems) || cartItems.length === 0) {
+    return res.status(400).send("Invalid cart items.");
+  }
+
+  try {
+    // Calculate the total price of the order
+    const totalPrice = cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0);
+
+    // Update product quantities and save the order
+    for (const cartItem of cartItems) {
+      const product = await Product.findById(cartItem.product._id);
+      if (!product) {
+        return res.status(404).send(`Product with ID ${cartItem.product._id} not found.`);
+      }
+
+      if (cartItem.quantity > product.stockQuantity) {
+        return res.status(400).send(`Insufficient stock for product ${product.name}.`);
+      }
+
+      product.stockQuantity -= cartItem.quantity;
+      await product.save();
+    }
+
+    console.log('Creating new order...');
+    const newOrder = new Order({
+      customer: customerId, // Cast the string to ObjectId
+      products: cartItems.map(cartItem => ({
+        product: new mongoose.Types.ObjectId(cartItem.product._id), // Cast the string to ObjectId
+        quantity: cartItem.quantity
+      })),
+      totalAmount: totalPrice
+    });
+    console.log('New Order:', newOrder);
+    
+    
+
+    // ... (rest of the code)
+
+    console.log('Saving new order...');
+    await newOrder.save();
+
+
+    res.status(200).send("Order submitted successfully.");
+  } catch (error) {
+    console.error("Error submitting order:", error);
+    res.status(500).send("Failed to submit order. Please try again.");
+  }
+});
+
+
+
+
+
+// API endpoint to fetch order history for a specific customer
+app.get('/order-history', async (req, res) => {
+  const customerId = req.query.customerId; // Get customerId from query parameters or session
+  try {
+    const orders = await Order.find({ customer: customerId }).populate('products.product');
+    res.json(orders);
+  } catch (error) {
+    console.error('Error fetching order history:', error);
+    res.status(500).json({ error: 'An error occurred while fetching order history.' });
+  }
+});
 
 
 app.listen(3000, () => {
