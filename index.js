@@ -2,6 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { Product, insertSampleProducts, Order, Customer } = require('./initDB.js'); // Import the Product model and insertSampleProducts function
 // ... other imports and app setup ...
+const DB = require('./initDB.js')
 const { Types } = mongoose;
 (async () => {
   try {
@@ -117,7 +118,6 @@ app.post('/submit-order', async (req, res) => {
     
     
 
-    // ... (rest of the code)
 
     console.log('Saving new order...');
     await newOrder.save();
@@ -144,6 +144,29 @@ app.get('/order-history', async (req, res) => {
     console.error('Error fetching order history:', error);
     res.status(500).json({ error: 'An error occurred while fetching order history.' });
   }
+});
+
+
+// Route for adding a new product
+app.post('/products', async (req, res) => {
+  const newProduct = req.body; // New product data from client
+  console.log('ger', newProduct);
+  console.log('Creating new order...');
+
+  const addProduct = new Product({
+    
+    name: newProduct.name,
+    description: newProduct.description,
+    price: newProduct.price,
+    stockQuantity: newProduct.stockQuantity,
+  });
+  console.log('New product:', addProduct);
+
+  await addProduct.save();
+
+  res.status(200).send("Product add successfully.");
+  // DB.push(newProduct); // Insert into the database (in-memory example)
+  // res.status(201).json(newProduct); // Respond with the newly added product
 });
 
 

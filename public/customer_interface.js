@@ -1,11 +1,13 @@
+// import { products, fetchProducts, displayProducts, displayProductList, addToCart } from './productUtils.js';
 
 let products = [];
-// fetch data from DB and execute it, next function will display the data
+fetchProducts();
+// // // fetch data from DB and execute it, next function will display the data
 async function fetchProducts() {
   try {
     const response = await fetch('/products'); // Fetch products from the server
     products = await response.json();
-    displayProductList();
+    displayProductList();  // display all products before seaerch
   } catch (error) {
     console.error('Error fetching product list:', error);
   }
@@ -31,7 +33,7 @@ function displayProductList() {
 
 // Event listener for search button will execute previous function: displayProducts(productArray)
 searchBtn.addEventListener("click", () => {
-  console.log('search button clicked!')
+  console.log('search button clicked!!!!!')
   const searchTerm = searchInput.value.toLowerCase();
   const filteredProducts = products.filter(product => 
     product.name.toLowerCase().includes(searchTerm) || 
@@ -42,7 +44,7 @@ searchBtn.addEventListener("click", () => {
 });
 
 
-// Function to display products in the productList that user search for
+// // Function to display products in the productList that user search for
 function displayProducts(productArray) {
   searchProduct.innerHTML = "";
 
@@ -51,8 +53,8 @@ function displayProducts(productArray) {
     const productDiv = document.createElement("div"); // Create product div
     productDiv.classList.add("product");
     productDiv.innerHTML = `
-      <h3>${product.name}</h3>
-      <p>${product.description}</p>
+      <h3>${product.name} id: ${product._id}</h3>
+      <p>Description: ${product.description}</p>
       <p>Price: $${product.price.toFixed(2)}</p>
       <p>Stock Quantity: ${product.stockQuantity}</p>
       <label for="quantity${product.id}">Quantity:</label>
