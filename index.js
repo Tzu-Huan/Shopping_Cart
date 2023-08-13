@@ -2,7 +2,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const { Product, insertSampleProducts, Order, Customer } = require('./initDB.js'); // Import the Product model and insertSampleProducts function
 // ... other imports and app setup ...
-const DB = require('./initDB.js')
+
 const { Types } = mongoose;
 (async () => {
   try {
@@ -80,8 +80,8 @@ async function getCartItemsForCustomer(customerId) {
 app.post('/submit-order', async (req, res) => {
   let cartItems = req.body.cartItems; // Get the cart items from the request body
   let customerId = req.body.customer;
-  console.log('id');
-  console.log(customerId);
+  console.log('NAMWE');
+  
   if (!Array.isArray(cartItems) || cartItems.length === 0) {
     return res.status(400).send("Invalid cart items.");
   }
@@ -110,6 +110,7 @@ app.post('/submit-order', async (req, res) => {
       customer: customerId, // Cast the string to ObjectId
       products: cartItems.map(cartItem => ({
         product: new mongoose.Types.ObjectId(cartItem.product._id), // Cast the string to ObjectId
+        name: cartItem.product.name,
         quantity: cartItem.quantity
       })),
       totalAmount: totalPrice
@@ -148,7 +149,7 @@ app.get('/order-history', async (req, res) => {
 
 
 // Route for adding a new product
-app.post('/products', async (req, res) => {
+app.post('/addproducts', async (req, res) => {
   const newProduct = req.body; // New product data from client
   console.log('ger', newProduct);
   console.log('Creating new order...');
@@ -167,6 +168,55 @@ app.post('/products', async (req, res) => {
   res.status(200).send("Product add successfully.");
   // DB.push(newProduct); // Insert into the database (in-memory example)
   // res.status(201).json(newProduct); // Respond with the newly added product
+});
+
+// // Route for deleting a product
+// app.delete('/delete/:productId', async (req, res) => {
+//   const productId = req.params.productId; // Get the product ID from the route parameter
+
+//   try {
+//     const deletedProduct = await Product.findByIdAndDelete(productId);
+//     if (deletedProduct) {
+//       console.log(`Product with ID ${productId} deleted.`);
+//       res.status(200).send(`Product with ID ${productId} deleted.`);
+//     } else {
+//       console.error(`Product with ID ${productId} not found.`);
+//       res.status(404).send(`Product with ID ${productId} not found.`);
+//     }
+//   } catch (error) {
+//     console.error(`Error deleting product with ID ${productId}:`, error);
+//     res.status(500).send(`Failed to delete product with ID ${productId}.`);
+//   }
+// });
+
+
+////
+// Route for deleting a product
+app.delete('/delete/:productId', async (req, res) => {
+  const productId = req.params.productId; // Get the product ID from the route parameter
+  console.log('go to here');
+  try {
+    
+    // Check if the product is associated with any orders
+    const productInOrders = await Order.findOne({ 'products.product': productId });
+    if (productInOrders) {
+      console.log(`Product with ID ${productId} is assigned to an order. Cannot delete.`);
+      res.status(400).send(`Product with ID ${productId} is assigned to an order. Cannot delete!`);
+      return;
+    }
+
+    const deletedProduct = await Product.findByIdAndDelete(productId);
+    if (deletedProduct) {
+      console.log(`Product with ID ${productId} deleted.`);
+      res.status(200).send(`Product with ID ${productId} deleted!`);
+    } else {
+      console.error(`Product with ID ${productId} not found.`);
+      res.status(404).send(`Product with ID ${productId} not found.`);
+    }
+  } catch (error) {
+    console.error(`Error deleting product with ID ${productId}:`, error);
+    res.status(500).send(`Failed to delete product with ID ${productId}.`);
+  }
 });
 
 

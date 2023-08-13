@@ -198,8 +198,9 @@ submitOrderBtn.addEventListener("click", async () => {
   try {
 
     const customer = getCustomerFromQuery(); // Get customer ID from query or session
-    console.log(customer);
-    console.log('still good 1');
+    console.log('still good below');
+    console.log(cartItems);
+    
     // let orderItems = cartItems.map(cartItem => ({
     //   product: cartItem.product.name, // Assuming product._id is the ID field of the product
     //   quantity: cartItem.quantity

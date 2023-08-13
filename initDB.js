@@ -27,6 +27,7 @@ const orderSchema = new mongoose.Schema({
   customer: { type: String, ref: 'Customer' },
   products: [{ 
     product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' }, // Change the type to ObjectId
+    name: {type: String, required: true},
     quantity: { type: Number, required: true }
   }],
   totalAmount: { type: Number, required: true },

@@ -49,13 +49,15 @@ function displayProducts(productArray) {
         updateProductButton.addEventListener("click", () => {
             // Implement the update logic here
             console.log(`Update product with ID: ${product._id}`);
+            
         });
     
         // Event listener for deleting a product
         const deleteProductButton = productDiv.querySelector(".deleteProductButton");
         deleteProductButton.addEventListener("click", () => {
-            // Implement the delete logic here
+
             console.log(`Delete product with ID: ${product._id}`);
+            deleteProduct(product._id);
         });
       // Add event listener to the "Add to Cart" button
     //   const addToCartButton = productDiv.querySelector(".addToCartButton");
@@ -73,6 +75,35 @@ function displayProducts(productArray) {
       searchProduct.appendChild(productDiv);
     });
   }
+
+// Function to delete a product
+async function deleteProduct(productId) {
+    try {
+      const response = await fetch(`/delete/${productId}`, {
+        method: "DELETE"
+      });
+      console.log('doing good');
+      if (response.ok) {
+        const successMessage = await response.text();
+        alert(successMessage);
+        // console.log(`Product with ID ${productId} deleted.`);
+        // Update the UI by removing the deleted product element
+        // productDiv.remove();
+                // Refresh the product list to reflect changes
+                fetchProducts();
+                location.reload();
+                // alert(`Product with ID ${productId} has been successfully deleted.`); // Success message alert
+      } else {
+        const errorMessage = await response.text(); // Get the error message from the response
+        alert(errorMessage); // Display the error message in an alert
+      }
+    } catch (error) {
+      console.error("Error deleting product:", error);
+    }
+  }
+
+  
+  
 
 function displayProductList() {
 try {
@@ -139,7 +170,7 @@ function displayProductsMaintenanceForm() {
       
     try {
     // Make an API call to add the new product to the database
-    const response = await fetch('/products', {
+    const response = await fetch('/addproducts', {
         method: 'POST',
         headers: {
         'Content-Type': 'application/json',
