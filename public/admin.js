@@ -415,9 +415,10 @@ async function fetchOrderHistory(customerId) {
         orderDiv.classList.add("order");
         orderDiv.innerHTML = `
             <h3>Order ID: ${order._id}</h3>
+            <button class="deleteOrderButton" data-order-id="${order._id}">Delete Order</button>
             <p>Products:  <br>${order.products.map(product => `
                 ${product.name} - Quantity: ${product.quantity}
-                <button class="updateQuantityButton" data-order-id="${order._id}" data-product-id="${product._id}">Update Quantity</button>
+                <button class="updateQuantityButton" data-order-id="${order._id}" data-product-id="${product.product._id}">Update Quantity</button>
                 <button class="deleteProductButton" data-order-id="${order._id}" data-product-id="${product._id}">Delete Product</button>
             `).join('<br>')}</p>
             <p>Total Amount: $${order.totalAmount.toFixed(2)}</p>
@@ -458,15 +459,60 @@ async function fetchOrderHistory(customerId) {
                         console.log('check f');
                         // Handle success, such as refreshing the order history
                         const orderHistory = await fetchOrderHistory(customerId);
+                       
                         location.reload();
                         displayOrderHistory(orderHistory);
                     } else {
+                        const errorMessage = await response.text(); // Get the error message from the response
+                        alert(errorMessage); // Display the error message in an alert
+                        alert('test');
                         console.error('Failed to update quantity:', response.statusText);
+
+
                     }
                 } catch (error) {
                     console.error('Error updating quantity:', error);
+                    location.reload();
                 }
             }
+        });
+    });
+
+    const deleteOrderButtons = document.querySelectorAll('.deleteOrderButton');
+    deleteOrderButtons.forEach(deleteOrderButton => {
+        deleteOrderButton.addEventListener('click', async () => {
+            const orderId = deleteOrderButton.getAttribute('data-order-id');
+           
+            console.log('order id you want to delete: ', orderId);
+
+           
+            const deleteOrderUrl = `/delete-order/${orderId}`;
+  
+            console.log('f:', orderId);
+            try {
+                const response = await fetch(deleteOrderUrl, {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                console.log(response);
+                if (response.ok) {
+                    console.log('check delete resopnse ok');
+                    // Handle success, such as refreshing the order history
+                    const orderHistory = await fetchOrderHistory(customerId);
+                    location.reload();
+                    displayOrderHistory(orderHistory);
+                } else {
+                    const errorMessage = await response.text(); // Get the error message from the response
+                    alert(errorMessage); // Display the error message in an alert
+                    console.error('Failed to delete order:', response.statusText);
+
+                }
+            } catch (error) {
+                console.error('Error delete order:', error);
+            }
+            
         });
     });
 }

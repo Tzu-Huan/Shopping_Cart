@@ -262,22 +262,48 @@ app.put('/update-quantity/:orderId/:productId', async (req, res) => {
   const orderId = req.params.orderId;
   const productId = req.params.productId;
   const newQuantity = parseInt(req.body.newQuantity);
-  
+  console.log('idddd: ', productId);
   try {
     // Find the order by its ID
     const order = await Order.findById(orderId);
     
     // Find the product within the order's products array
-    const productIndex = order.products.findIndex(element => element._id.toString() == productId);
+    const productIndex = order.products.findIndex(element => element.product.toString() == productId);
     
-    console.log(order.products[0]._id.toString());
+    console.log(order.products[0].product.toString());
 
     
     if (productIndex !== -1) {
-        order.products[productIndex].quantity = newQuantity;
-        console.log('check');
+        subract = newQuantity - order.products[productIndex].quantity;
+        order.products[productIndex].quantity = newQuantity;  // new quantity of order
+
+         // Check if the new quantity exceeds the available stock
+        //  const product = await Product.findById(productId);
+        //  if (newQuantity > product.stockQuantity) {
+        //   return res.status(400).send(`Requested quantity exceeds available stock for product ${product.name}.`);
+        // }
+
+        const product = await Product.findById(productId);
+        console.log(product);
+
+        if (subract > product.stockQuantity) {
+          return res.status(400).send(`Requested quantity exceeds available stock for product ${product.name}.`);
+        }
+        console.log('chieck point');
+        
         // Update the order with the new product quantity
-        await order.save();
+        // check add or reduce
+        console.log('add more:', subract);
+        if(subract >= 0){
+          product.stockQuantity -= subract;
+          await product.save();
+          await order.save();
+        }else{
+          product.stockQuantity += subract;
+          await product.save();
+          await order.save();
+        }
+
         
         res.status(200).send(`Quantity of product with ID ${productId} in order with ID ${orderId} updated.`);
     } else {
@@ -286,7 +312,7 @@ app.put('/update-quantity/:orderId/:productId', async (req, res) => {
     }
 } catch (error) {
     console.error(`Error updating quantity for product ${productId} in order ${orderId}:`, error);
-    res.status(500).send(`Error updating quantity for product ${productId} in order ${orderId}.`);
+    res.status(500).send(`Requested quantity exceeds available stock for product ${productId} in order ${orderId}.`);
 }
 
  });
@@ -295,12 +321,44 @@ app.put('/update-quantity/:orderId/:productId', async (req, res) => {
 app.delete('/delete-product/:orderId/:productId', async (req, res) => {
   const orderId = req.params.orderId;
   const productId = req.params.productId;
-
+  
   // Delete the specified product from the order
   // ...
 
   res.status(200).send(`Product with ID ${productId} deleted from order with ID ${orderId}.`);
 });
+
+// Route for deleting an order (whole order)
+app.delete('/delete-order/:orderId', async (req, res) => {
+  const orderId = req.params.orderId;
+  console.log(orderId);
+  try {
+    // Find the order by its ID
+    const order = await Order.findById(orderId);
+    console.log(order);
+    if (!order) {
+      return res.status(404).send(`Order with ID ${orderId} not found.`);
+    }
+
+    // Restore the product quantities that were previously deducted from stock
+    for (const productItem of order.products) {
+      const product = await Product.findById(productItem.product);
+      if (product) {
+        product.stockQuantity += productItem.quantity;
+        await product.save();
+      }
+    }
+
+    // Delete the order from the database
+    await Order.deleteOne({ _id: orderId }); // Use .deleteOne() to delete the order
+
+    res.status(200).send(`Order with ID ${orderId} deleted successfully.`);
+  } catch (error) {
+    console.error(`Error deleting order with ID ${orderId}:`, error);
+    res.status(500).send(`Error deleting order with ID ${orderId}.`);
+  }
+});
+
 
 app.listen(3000, () => {
     console.log('http://localhost:3000 Server running on port 3000');
