@@ -9,6 +9,7 @@ mongoose.connect('mongodb://127.0.0.1:27017/shopping_cart', {  // note for mysel
 });
 
 
+
 // Create a schema for the products
 const productSchema = new mongoose.Schema({
   name: String,
@@ -43,12 +44,11 @@ const customerSchema = new mongoose.Schema({
 });
 
 const Customer = mongoose.model('Customer', customerSchema);
-// Read and parse the JSON data
+
+
+// Read and parse the JSON data (products)
 const productsData = fs.readFileSync(path.join(__dirname, 'products.json'), 'utf8');
 const sampleProducts = JSON.parse(productsData);
-
-
-
 
 // Insert sample products into the database if it's empty
 async function insertSampleProducts() {
@@ -65,8 +65,38 @@ async function insertSampleProducts() {
   }
 }
 
-module.exports = { Product, insertSampleProducts, Order, Customer }; // Export the Product model and insertSampleProducts function
+// Read and parse the JSON data (customers)
+const customersData = fs.readFileSync(path.join(__dirname, 'customers.json'), 'utf8');
+const sampleCustomers = JSON.parse(customersData);
 
+// Insert sample customers into the database if it's empty
+async function insertSampleCustomers() {
+  try {
+    const count = await Customer.countDocuments();
+    if (count === 0) {
+      await Customer.insertMany(sampleCustomers);
+      console.log('Sample customers inserted successfully.');
+    } else {
+      console.log('Database already contains customers.');
+    }
+  } catch (error) {
+    console.error('Error inserting sample customers:', error);
+  }
+}
+
+
+// Fetch all customers from the database
+async function getAllCustomers() {
+  try {
+    const customers = await Customer.find();
+    return customers;
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+    return [];
+  }
+}
+
+module.exports = { Product, insertSampleProducts, Order, Customer, insertSampleCustomers, getAllCustomers }; // Export the Product model and insertSampleProducts function
 
 // // Insert sample products into the database
 // Product.insertMany(sampleProducts)

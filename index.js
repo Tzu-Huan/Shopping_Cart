@@ -1,6 +1,6 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const { Product, insertSampleProducts, Order, Customer } = require('./initDB.js'); // Import the Product model and insertSampleProducts function
+const { Product, insertSampleProducts, Order, Customer, insertSampleCustomers, getAllCustomers } = require('./initDB.js'); // Import the Product model and insertSampleProducts function
 // ... other imports and app setup ...
 
 const { Types } = mongoose;
@@ -13,6 +13,7 @@ const { Types } = mongoose;
 
     // Call the insertSampleProducts function to insert sample products if the database is empty
     await insertSampleProducts();
+    await insertSampleCustomers();
 
 
   } catch (error) {
@@ -38,6 +39,19 @@ app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
   console.log(path.join(__dirname, 'public', 'index.html'));
 });
+
+
+// Route to fetch customers
+app.get('/fetch-customers', async (req, res) => {
+  try {
+    const customers = await getAllCustomers();
+    res.json(customers);
+  } catch (error) {
+    console.error('Error fetching customers:', error);
+    res.status(500).json({ error: 'Failed to fetch customers' });
+  }
+});
+
 
 app.get('/customer_interface.html', async(req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'customer_interface.html'));
@@ -219,6 +233,33 @@ app.delete('/delete/:productId', async (req, res) => {
   }
 });
 
+
+// Route for updating a product
+app.put('/update/:productId', async (req, res) => {
+  const productId = req.params.productId;
+  const updatedProduct = req.body;
+
+  try {
+    const existingProduct = await Product.findByIdAndUpdate(productId, updatedProduct, { new: true });
+
+    if (existingProduct) {
+      console.log(`Product with ID ${productId} updated.`);
+      res.status(200).send(`Product with ID ${productId} updated.`);
+    } else {
+      console.error(`Product with ID ${productId} not found.`);
+      res.status(404).send(`Product with ID ${productId} not found.`);
+    }
+  } catch (error) {
+    console.error(`Error updating product with ID ${productId}:`, error);
+    res.status(500).send(`Failed to update product with ID ${productId}.`);
+  }
+});
+
+
+app.get(`/customer/:customerId/orders`, async (req, res) => {
+  const customerId = req.params.productId;
+  
+});
 
 app.listen(3000, () => {
     console.log('http://localhost:3000 Server running on port 3000');

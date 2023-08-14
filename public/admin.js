@@ -47,9 +47,39 @@ function displayProducts(productArray) {
         // Event listener for updating a product
         const updateProductButton = productDiv.querySelector(".updateProductButton");
         updateProductButton.addEventListener("click", () => {
-            // Implement the update logic here
-            console.log(`Update product with ID: ${product._id}`);
-            
+            const updateForm = document.createElement("form");
+            updateForm.innerHTML = `
+            <label for="updateName">Name:</label>
+            <input type="text" id="updateName" value="${product.name}" required>
+            <label for="updateDescription">Description:</label>
+            <input type="text" id="updateDescription" value="${product.description}" required>
+            <label for="updatePrice">Price:</label>
+            <input type="number" id="updatePrice" step="0.01" value="${product.price}" required>
+            <label for="updateStock">Stock Quantity:</label>
+            <input type="number" id="updateStock" min="0" value="${product.stockQuantity}" required>
+            <button type="submit">Update Product</button>
+        `;
+
+        // Add an event listener to the update form submit button
+            updateForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+
+            const updatedProduct = {
+                name: document.getElementById("updateName").value,
+                description: document.getElementById("updateDescription").value,
+                price: parseFloat(document.getElementById("updatePrice").value),
+                stockQuantity: parseInt(document.getElementById("updateStock").value, 10)
+            };
+
+            await updateProduct(product._id, updatedProduct);
+
+            // Close the update form and refresh the product list
+            updateForm.remove();
+            fetchProducts();
+            });
+
+    // Append the update form to the productDiv
+        productDiv.appendChild(updateForm);
         });
     
         // Event listener for deleting a product
@@ -76,6 +106,49 @@ function displayProducts(productArray) {
     });
   }
 
+// Function to update a product's information
+async function updateProduct(productId, updatedProduct) {
+    try {
+      const response = await fetch(`/update/${productId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(updatedProduct)
+      });
+  
+      if (response.ok) {
+        console.log(`Product with ID ${productId} updated.`);
+        // Refresh the product list to reflect changes
+        fetchProducts();
+        location.reload();
+        alert(`Product with ID ${productId} has been successfully updated.`);
+      } else {
+        const errorMessage = await response.text(); // Get the error message from the response
+        alert(errorMessage); // Display the error message in an alert
+      }
+    } catch (error) {
+      console.error("Error updating product:", error);
+      alert("An error occurred while updating the product."); // Display a generic error message
+    }
+  }
+  
+  // Event listener for submitting the product update form
+//   updateProductButton.addEventListener("submit", async (event) => {
+//     event.preventDefault();
+  
+//     const productId = updateProductIdInput.value;
+//     const updatedProduct = {
+//       name: updateProductNameInput.value,
+//       description: updateProductDescriptionInput.value,
+//       price: parseFloat(updateProductPriceInput.value),
+//       stockQuantity: parseInt(updateProductStockInput.value)
+//     };
+  
+//     updateProduct(productId, updatedProduct);
+//   });
+  
+//////////
 // Function to delete a product
 async function deleteProduct(productId) {
     try {
@@ -217,4 +290,112 @@ function displayProductsMaintenanceForm() {
   
   // Call the displayProductsMaintenanceForm function
   displayProductsMaintenanceForm();
+  
+ // Function to fetch customers from the server
+async function fetchCustomers() {
+    try {
+      const response = await fetch('/fetch-customers');
+      if (response.ok) {
+        const customers = await response.json();
+        return customers;
+      } else {
+        console.error('Failed to fetch customers from the server.');
+        return [];
+      }
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+      return [];
+    }
+  }
+  
+ 
+ 
+ 
+  // Function to display customers in the customer list
+function displayCustomers(customers) {
+    const customerList = document.getElementById('customerList');
+  
+    customers.forEach(customer => {
+        const listItem = document.createElement('li');
+        listItem.textContent = customer.name;
+        listItem.classList.add('customer-item'); // Add a class for able to click
+        listItem.setAttribute('data-customer-id', customer._id); // Set the data attribute
+        listItem.setAttribute('data-customer-name', customer.name); // Set the data attribute for name
+        customerList.appendChild(listItem);
+
+    });
+
+
+    const customerItems = document.querySelectorAll('.customer-item');
+    console.log('look',customerItems);
+    customerItems.forEach(customerItem => {
+        customerItem.addEventListener('click', async () => {
+        console.log('customer click');
+        const customerId = customerItem.getAttribute('data-customer-id'); // Get the customer ID from the data attribute
+        const customerName = customerItem.getAttribute('data-customer-name'); // Get the customer name from the data attribute
+
+        // const customerId = customerItem.textContent; // Assuming the customer name is the same as the ID
+        const orderHistory = await fetchOrderHistory(customerId); // Fetch the order history for the customer
+        displayOrderHistory(orderHistory, customerName); // Display the order history
+        });
+    });
+  }
+
+
+customerBtn.addEventListener("click", async () => {
+    console.log('customer button clicked!!!!!');
+    const customers = await fetchCustomers();
+    displayCustomers(customers);
+    //customerBtn.style.display = 'none';
+});
+
+
+
+
+async function fetchOrderHistory(customerId) {
+    try {
+    //   const response = await fetch(`/customer/${customerId}/orders`);
+      const response = await fetch(`/order-history?customerId=${customerId}`);
+     
+      if (response.ok) {
+        const orderHistory = await response.json();
+        console.log('here',orderHistory);
+        return orderHistory;
+      } else {
+        console.error(`Failed to fetch order history for customer ${customerId} from the server.`);
+        return [];
+      }
+    } catch (error) {
+      console.error(`Error fetching order history for customer ${customerId}:`, error);
+      return [];
+    }
+  }
+
+  function displayOrderHistory(orderHistory, customerName) {
+    // Clear any previous order history
+    
+    const orderHistoryContainer = document.getElementById('orderHistory');
+    orderHistoryContainer.innerHTML = '';
+  
+    // Display the customer name
+    const customerNameElement = document.createElement('h2');
+    customerNameElement.textContent = `Order History for ${customerName}`;
+    orderHistoryContainer.appendChild(customerNameElement);
+
+    // Display each order in the order history
+    orderHistory.forEach(order => {
+        
+      const orderDiv = document.createElement("div");
+      orderDiv.classList.add("order");
+      orderDiv.innerHTML = `
+        <h3>Order ID: ${order._id}</h3>
+        <p>Products:  <br>${order.products.map(product => `${product.name} - Quantity: ${product.quantity}`).join('<br>')}</p>
+        <p>Total Amount: $${order.totalAmount.toFixed(2)}</p>
+        <p>Order Date: ${new Date(order.orderDate).toLocaleString()}</p>
+      `;
+  
+      orderHistoryContainer.appendChild(orderDiv);
+    });
+  }
+  
   

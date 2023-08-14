@@ -23,13 +23,40 @@
 <form id="customerForm" action="/start-shopping" method="post">
   <label for="customerSelect">Select Customer:</label>
   <select id="customerSelect" name="customer">
-    <option value="customer1">Customer 1</option>
+    <!-- <option value="customer1">Customer 1</option>
     <option value="customer2">Customer 2</option>
-    <option value="customer3">Customer 3</option>
+    <option value="customer3">Customer 3</option> -->
 
   </select>
   <button type="submit">Start Shopping</button>
 </form>
+
+<script>
+  // Inside your HTML file or a script tag in your HTML
+  const customerSelect = document.getElementById('customerSelect');
+
+  // Fetch customers and populate the dropdown list
+  async function populateCustomerDropdown() {
+    try {
+      const response = await fetch('/fetch-customers'); // Assuming you set up a route for fetching customers
+      const customers = await response.json();
+
+      customers.forEach(customer => {
+        const option = document.createElement('option');
+        option.value = customer._id; // Use the appropriate identifier for your customer
+        option.textContent = customer.name; // Use the appropriate property for customer name
+        customerSelect.appendChild(option);
+      });
+    } catch (error) {
+      console.error('Error fetching and populating customers:', error);
+    }
+  }
+
+  populateCustomerDropdown();
+
+</script>
+
+
 <br><br>
 <a href="admin.html">Admin Interface</a>
 </body>
