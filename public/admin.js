@@ -336,7 +336,7 @@ function displayCustomers(customers) {
 
         // const customerId = customerItem.textContent; // Assuming the customer name is the same as the ID
         const orderHistory = await fetchOrderHistory(customerId); // Fetch the order history for the customer
-        displayOrderHistory(orderHistory, customerName); // Display the order history
+        displayOrderHistory(orderHistory, customerName, customerId); // Display the order history
         });
     });
   }
@@ -346,7 +346,7 @@ customerBtn.addEventListener("click", async () => {
     console.log('customer button clicked!!!!!');
     const customers = await fetchCustomers();
     displayCustomers(customers);
-    //customerBtn.style.display = 'none';
+    customerBtn.style.display = 'none';
 });
 
 
@@ -371,7 +371,34 @@ async function fetchOrderHistory(customerId) {
     }
   }
 
-  function displayOrderHistory(orderHistory, customerName) {
+//   function displayOrderHistory(orderHistory, customerName) {
+//     // Clear any previous order history
+    
+//     const orderHistoryContainer = document.getElementById('orderHistory');
+//     orderHistoryContainer.innerHTML = '';
+  
+//     // Display the customer name
+//     const customerNameElement = document.createElement('h2');
+//     customerNameElement.textContent = `Order History for ${customerName}`;
+//     orderHistoryContainer.appendChild(customerNameElement);
+
+//     // Display each order in the order history
+//     orderHistory.forEach(order => {
+        
+//       const orderDiv = document.createElement("div");
+//       orderDiv.classList.add("order");
+//       orderDiv.innerHTML = `
+//         <h3>Order ID: ${order._id}</h3>
+//         <p>Products:  <br>${order.products.map(product => `${product.name} - Quantity: ${product.quantity}`).join('<br>')}</p>
+//         <p>Total Amount: $${order.totalAmount.toFixed(2)}</p>
+//         <p>Order Date: ${new Date(order.orderDate).toLocaleString()}</p>
+//       `;
+  
+//       orderHistoryContainer.appendChild(orderDiv);
+//     });
+//   }
+  
+  function displayOrderHistory(orderHistory, customerName, customerId) {
     // Clear any previous order history
     
     const orderHistoryContainer = document.getElementById('orderHistory');
@@ -384,18 +411,74 @@ async function fetchOrderHistory(customerId) {
 
     // Display each order in the order history
     orderHistory.forEach(order => {
-        
-      const orderDiv = document.createElement("div");
-      orderDiv.classList.add("order");
-      orderDiv.innerHTML = `
-        <h3>Order ID: ${order._id}</h3>
-        <p>Products:  <br>${order.products.map(product => `${product.name} - Quantity: ${product.quantity}`).join('<br>')}</p>
-        <p>Total Amount: $${order.totalAmount.toFixed(2)}</p>
-        <p>Order Date: ${new Date(order.orderDate).toLocaleString()}</p>
-      `;
+        const orderDiv = document.createElement("div");
+        orderDiv.classList.add("order");
+        orderDiv.innerHTML = `
+            <h3>Order ID: ${order._id}</h3>
+            <p>Products:  <br>${order.products.map(product => `
+                ${product.name} - Quantity: ${product.quantity}
+                <button class="updateQuantityButton" data-order-id="${order._id}" data-product-id="${product._id}">Update Quantity</button>
+                <button class="deleteProductButton" data-order-id="${order._id}" data-product-id="${product._id}">Delete Product</button>
+            `).join('<br>')}</p>
+            <p>Total Amount: $${order.totalAmount.toFixed(2)}</p>
+            <p>Order Date: ${new Date(order.orderDate).toLocaleString()}</p>
+        `;
   
-      orderHistoryContainer.appendChild(orderDiv);
+        orderHistoryContainer.appendChild(orderDiv);
+
+
+
     });
-  }
-  
-  
+
+    // Event listener for updating quantity of a product
+    const updateQuantityButtons = document.querySelectorAll('.updateQuantityButton');
+
+    updateQuantityButtons.forEach(updateQuantityButton => {
+        updateQuantityButton.addEventListener('click', async () => {
+            const orderId = updateQuantityButton.getAttribute('data-order-id');
+            const productId = updateQuantityButton.getAttribute('data-product-id');
+            console.log('frontend', productId);
+            // Show a prompt to enter the new quantity
+            const newQuantity = prompt('Enter the new quantity:');
+            // Perform the update quantity action using a fetch request
+            if (newQuantity !== null) {
+                const updateQuantityUrl = `/update-quantity/${orderId}/${productId}`;
+                const updateQuantityData = { newQuantity: parseInt(newQuantity) };
+                
+                try {
+                    const response = await fetch(updateQuantityUrl, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(updateQuantityData)
+                    });
+                    
+                    if (response.ok) {
+                        console.log('check f');
+                        // Handle success, such as refreshing the order history
+                        const orderHistory = await fetchOrderHistory(customerId);
+                        location.reload();
+                        displayOrderHistory(orderHistory);
+                    } else {
+                        console.error('Failed to update quantity:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Error updating quantity:', error);
+                }
+            }
+        });
+    });
+}
+
+
+// Event listener for deleting a product from an order
+const deleteProductButtons = document.querySelectorAll('.deleteProductButton');
+deleteProductButtons.forEach(deleteProductButton => {
+    deleteProductButton.addEventListener('click', async () => {
+        const orderId = deleteProductButton.getAttribute('data-order-id');
+        const productId = deleteProductButton.getAttribute('data-product-id');
+        // Perform the delete product action using a fetch request
+        // ...
+    });
+});

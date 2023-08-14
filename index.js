@@ -256,9 +256,50 @@ app.put('/update/:productId', async (req, res) => {
 });
 
 
-app.get(`/customer/:customerId/orders`, async (req, res) => {
-  const customerId = req.params.productId;
+// Route for updating the quantity of a product in an order
+app.put('/update-quantity/:orderId/:productId', async (req, res) => {
+
+  const orderId = req.params.orderId;
+  const productId = req.params.productId;
+  const newQuantity = parseInt(req.body.newQuantity);
   
+  try {
+    // Find the order by its ID
+    const order = await Order.findById(orderId);
+    
+    // Find the product within the order's products array
+    const productIndex = order.products.findIndex(element => element._id.toString() == productId);
+    
+    console.log(order.products[0]._id.toString());
+
+    
+    if (productIndex !== -1) {
+        order.products[productIndex].quantity = newQuantity;
+        console.log('check');
+        // Update the order with the new product quantity
+        await order.save();
+        
+        res.status(200).send(`Quantity of product with ID ${productId} in order with ID ${orderId} updated.`);
+    } else {
+        console.log('error');
+        res.status(404).send(`Product with ID ${productId} not found in order with ID ${orderId}.`);
+    }
+} catch (error) {
+    console.error(`Error updating quantity for product ${productId} in order ${orderId}:`, error);
+    res.status(500).send(`Error updating quantity for product ${productId} in order ${orderId}.`);
+}
+
+ });
+
+// Route for deleting a product from an order
+app.delete('/delete-product/:orderId/:productId', async (req, res) => {
+  const orderId = req.params.orderId;
+  const productId = req.params.productId;
+
+  // Delete the specified product from the order
+  // ...
+
+  res.status(200).send(`Product with ID ${productId} deleted from order with ID ${orderId}.`);
 });
 
 app.listen(3000, () => {
