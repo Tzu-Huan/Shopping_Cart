@@ -419,7 +419,7 @@ async function fetchOrderHistory(customerId) {
             <p>Products:  <br>${order.products.map(product => `
                 ${product.name} - Quantity: ${product.quantity}
                 <button class="updateQuantityButton" data-order-id="${order._id}" data-product-id="${product.product._id}">Update Quantity</button>
-                <button class="deleteProductButton" data-order-id="${order._id}" data-product-id="${product._id}">Delete Product</button>
+                <button class="deleteProductButton" data-order-id="${order._id}" data-product-id="${product.product._id}">Delete Product</button>
             `).join('<br>')}</p>
             <p>Total Amount: $${order.totalAmount.toFixed(2)}</p>
             <p>Order Date: ${new Date(order.orderDate).toLocaleString()}</p>
@@ -465,7 +465,6 @@ async function fetchOrderHistory(customerId) {
                     } else {
                         const errorMessage = await response.text(); // Get the error message from the response
                         alert(errorMessage); // Display the error message in an alert
-                        alert('test');
                         console.error('Failed to update quantity:', response.statusText);
 
 
@@ -475,6 +474,49 @@ async function fetchOrderHistory(customerId) {
                     location.reload();
                 }
             }
+        });
+    });
+
+    const deleteProductButtons = document.querySelectorAll('.deleteProductButton');
+
+    deleteProductButtons.forEach(deleteProductButton => {
+        deleteProductButton.addEventListener('click', async () => {
+            const orderId = deleteProductButton.getAttribute('data-order-id');
+            const productId = deleteProductButton.getAttribute('data-product-id');
+            console.log('frontend', productId);
+            // Show a prompt to enter the new quantity
+
+
+                const deletedProductUrl = `/delete-product/${orderId}/${productId}`;
+                
+                try {
+                    const response = await fetch(deletedProductUrl, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        console.log('check f');
+                        // Handle success, such as refreshing the order history
+                        const orderHistory = await fetchOrderHistory(customerId);
+                       
+                        location.reload();
+                        displayOrderHistory(orderHistory);
+                    } else {
+                        const errorMessage = await response.text(); // Get the error message from the response
+                        alert(errorMessage); // Display the error message in an alert
+                        alert('test');
+                        console.error('Failed to update quantity:', response.statusText);
+
+
+                    }
+                } catch (error) {
+                    console.error('Error updating quantity:', error);
+                    location.reload();
+                }
+            
         });
     });
 

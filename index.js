@@ -322,10 +322,52 @@ app.delete('/delete-product/:orderId/:productId', async (req, res) => {
   const orderId = req.params.orderId;
   const productId = req.params.productId;
   
-  // Delete the specified product from the order
-  // ...
+  try {
+    // Find the order by its ID
+    const order = await Order.findById(orderId);
+    
+    // Find the product within the order's products array
+    const productIndex = order.products.findIndex(element => element.product.toString() == productId);
+    
+    console.log(productIndex);
 
-  res.status(200).send(`Product with ID ${productId} deleted from order with ID ${orderId}.`);
+    
+    if (productIndex !== -1) {
+        deleteQuantity = order.products[productIndex].quantity;
+        order.products[productIndex].quantity = 0;  // new quantity of order
+
+
+
+         // Check if the new quantity exceeds the available stock
+        //  const product = await Product.findById(productId);
+        //  if (newQuantity > product.stockQuantity) {
+        //   return res.status(400).send(`Requested quantity exceeds available stock for product ${product.name}.`);
+        // }
+
+        const product = await Product.findById(productId);
+        console.log(product);
+
+        // Update the order with the new product quantity
+        // check add or reduce
+ 
+        product.stockQuantity += deleteQuantity;
+        order.products.splice(productIndex, 1); // Remove the product from the array
+        await product.save();
+        await order.save();
+        
+        res.status(200).send(`${productId} in order with ID ${orderId} deleted.`);
+    } else {
+        console.log('error');
+        res.status(404).send(`Product with ID ${productId} not found in order with ID ${orderId}.`);
+    }
+} catch (error) {
+    console.error(`Error updating quantity for product ${productId} in order ${orderId}:`, error);
+    res.status(500).send(`delete failed: ${productId} in order ${orderId}.`);
+}
+  // // Delete the specified product from the order
+  // // ...
+
+  // res.status(200).send(`Product with ID ${productId} deleted from order with ID ${orderId}.`);
 });
 
 // Route for deleting an order (whole order)
