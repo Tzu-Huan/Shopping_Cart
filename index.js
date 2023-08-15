@@ -404,17 +404,20 @@ app.delete('/delete-product/:orderId/:productId', async (req, res) => {
         deleteQuantity = order.products[productIndex].quantity;
         // order.products[productIndex].quantity = 0;  
         // new quantity of order
-        console.log(deleteQuantity);
+        
         const product = await Product.findById(productId);
-        console.log(product);
-
 
         product.stockQuantity += deleteQuantity;
+
         order.products.splice(productIndex, 1); // Remove the product from the array
+
         // If there are no products left in the order, delete the entire order (last product in the order)
         if (order.products.length === 0) {
-          await Order.deleteOne({ _id: orderId });
           
+          await Order.deleteOne({ _id: orderId });
+          console.log(product);
+          console.log(product.stockQuantity);
+          await product.save();
           res.status(200).send(`Order with ID ${orderId} deleted successfully.`);
         } else {
           
@@ -428,7 +431,7 @@ app.delete('/delete-product/:orderId/:productId', async (req, res) => {
         res.status(404).send(`Product with ID ${productId} not found in order with ID ${orderId}.`);
     }
 } catch (error) {
-    console.error(`Error updating quantity for product ${productId} in order ${orderId}:`, error);
+    console.error(`Error deleting for product ${productId} in order ${orderId}:`, error);
     res.status(500).send(`delete failed: ${productId} in order ${orderId}.`);
 }
 
