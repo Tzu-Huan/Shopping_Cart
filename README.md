@@ -1,7 +1,7 @@
 # Shopping_Cart
 
-This project utilizes Node.js (Express and Mongoose) along with MongoDB.
-link: https://github.com/Tzu-Huan/Shopping_Cart/tree/master
+- This project utilizes Node.js (Express and Mongoose) along with MongoDB.
+- link: https://github.com/Tzu-Huan/Shopping_Cart/tree/master
 ## How to run this project?
 
 ### 1. Prepare MongoDB:
