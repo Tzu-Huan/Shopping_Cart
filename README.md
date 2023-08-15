@@ -15,8 +15,8 @@ mongodb/
 - Create another directory named 'mongo_data' within the 'mongodb' directory. Now you should have two subdirectories: 'mongodb-macos-aarch64-6.0.8' and 'mongo_data'.
 
 - Open your terminal and navigate to the 'mongodb' directory:
-```
 
+```
 cd mongodb
 ```
 - Start MongoDB using the following command, specifying the path to the 'mongo_data' directory:
@@ -29,9 +29,9 @@ mongodb-macos-aarch64-6.0.8/bin/mongod --dbpath=mongo_data
 
 ### 2. Navigate to the Project Directory:
 - Move to the 'Shopping_Cart' project directory:
+
 ```
 cd path_to_Shopping_Cart
-
 ```
 Replace 'path_to_Shopping_Cart' with the actual path to your project folder.
 After that, run the following commands one by one:
@@ -42,7 +42,7 @@ node initDB.js
 node index.js
 ```
 
-- cAcess the application through the URL: http://localhost:3000/index.html
+- Access the application through the URL: http://localhost:3000/index.html
 
 ### Three REST APIs (JSON and XML):
 - Product List: http://localhost:3000/products
