@@ -128,6 +128,7 @@ app.get('/products', async (req, res) => {
         const xmlResponse = generateXML(products);
         res.type('application/xml').send(xmlResponse);
       },
+      'text/html': () => res.json(products),
       default: () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
@@ -149,6 +150,7 @@ app.get('/products/:productName', async (req, res) => {
         const xmlResponse = generateXML(products);
         res.type('application/xml').send(xmlResponse);
       },
+      'text/html': () => res.json(products),
       default: () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
@@ -170,6 +172,7 @@ app.get('/products/price/:low/:high', async (req, res) => {
         const xmlResponse = generateXML(products);
         res.type('application/xml').send(xmlResponse);
       },
+      'text/html': () => res.json(products),
       default: () => res.status(406).send('Not Acceptable')
     });
   } catch (error) {
@@ -399,8 +402,9 @@ app.delete('/delete-product/:orderId/:productId', async (req, res) => {
     
     if (productIndex !== -1) {
         deleteQuantity = order.products[productIndex].quantity;
-        order.products[productIndex].quantity = 0;  // new quantity of order
-
+        // order.products[productIndex].quantity = 0;  
+        // new quantity of order
+        console.log(deleteQuantity);
         const product = await Product.findById(productId);
         console.log(product);
 
@@ -410,8 +414,10 @@ app.delete('/delete-product/:orderId/:productId', async (req, res) => {
         // If there are no products left in the order, delete the entire order (last product in the order)
         if (order.products.length === 0) {
           await Order.deleteOne({ _id: orderId });
+          
           res.status(200).send(`Order with ID ${orderId} deleted successfully.`);
         } else {
+          
           await product.save();
           await order.save();
           res.status(200).send(`${productId} in order with ID ${orderId} deleted.`);

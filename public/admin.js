@@ -9,7 +9,7 @@ async function fetchProducts() {
       
       console.log('fetching products...');
       console.log(products);
-      //displayProductList();  // display all products before seaerch
+      displayProductList();  // display all products before seaerch
     } catch (error) {
       console.error('Error fetching product list:', error);
     }
