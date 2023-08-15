@@ -1,28 +1,74 @@
 [
     {
-      "name": "Smartphone",
-      "description": "High-performance smartphone with advanced features.",
-      "price": 399.99,
+      "name": "iPhone 13",
+      "description": "Latest smartphone with A15 Bionic chip and dual-camera system.",
+      "price": 799.99,
       "stockQuantity": 50
     },
     {
-      "name": "Laptop",
-      "description": "Thin and lightweight laptop with powerful processing.",
-      "price": 999.99,
+      "name": "Dell XPS 15",
+      "description": "Premium laptop with 4K OLED display and Intel Core i7 processor.",
+      "price": 1599.99,
       "stockQuantity": 75
     },
     {
-      "name": "Wireless Earbuds",
-      "description": "True wireless earbuds with noise cancellation technology.",
-      "price": 89.99,
+      "name": "AirPods Pro",
+      "description": "Wireless earbuds with active noise cancellation and spatial audio.",
+      "price": 249.99,
       "stockQuantity": 100
     },
     {
-      "name": "Smart Watch",
-      "description": "Fitness tracker and smartwatch with customizable watch faces.",
+      "name": "Fitbit Charge 5",
+      "description": "Advanced fitness tracker with built-in GPS and heart rate monitoring.",
       "price": 149.99,
       "stockQuantity": 25
+    },
+    {
+      "name": "Samsung QLED 4K TV",
+      "description": "Smart TV with Quantum Dot technology and HDR10+ support.",
+      "price": 999.99,
+      "stockQuantity": 50
+    },
+    {
+      "name": "Sony WH-1000XM4",
+      "description": "High-quality wireless headphones with noise cancellation.",
+      "price": 349.99,
+      "stockQuantity": 75
+    },
+    {
+      "name": "Instant Pot Duo",
+      "description": "Versatile electric pressure cooker with multiple cooking functions.",
+      "price": 99.99,
+      "stockQuantity": 100
+    },
+    {
+      "name": "Canon EOS Rebel T8i",
+      "description": "Entry-level DSLR camera with 24.1MP sensor and 4K video recording.",
+      "price": 699.99,
+      "stockQuantity": 25
+    },
+    {
+      "name": "Nintendo Switch",
+      "description": "Hybrid gaming console with handheld and TV modes.",
+      "price": 299.99,
+      "stockQuantity": 50
+    },
+    {
+      "name": "Nespresso VertuoPlus",
+      "description": "Coffee and espresso maker with automatic capsule recognition.",
+      "price": 149.99,
+      "stockQuantity": 75
+    },
+    {
+      "name": "Bose SoundLink Revolve+",
+      "description": "Portable Bluetooth speaker with 360-degree sound and built-in handle.",
+      "price": 299.99,
+      "stockQuantity": 100
+    },
+    {
+      "name": "Kindle Paperwhite",
+      "description": "Waterproof e-reader with high-resolution display and adjustable light.",
+      "price": 129.99,
+      "stockQuantity": 25
     }
-
-  ]
-  
+]
