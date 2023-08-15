@@ -1,7 +1,7 @@
 # Shopping_Cart
 
 This project utilizes Node.js (Express and Mongoose) along with MongoDB.
-
+link: https://github.com/Tzu-Huan/Shopping_Cart/tree/master
 ## How to run this project?
 
 ### 1. Prepare MongoDB:
@@ -42,8 +42,9 @@ node initDB.js
 node index.js
 ```
 
-- Access the application through the URL: http://localhost:3000/index.html
-
+### Useful URLs
+- Access the Home Page of application through the URL: http://localhost:3000/index.html
+- Access the Admin page of application through the URL: http://localhost:3000/admin.html
 ### Three REST APIs (JSON and XML):
 - Product List: http://localhost:3000/products
 - Product Matching a Specified Name (Example: 'iPhone 13'): http://localhost:3000/products/iPhone%2013
