@@ -69,11 +69,108 @@ app.post('/start-shopping', (req, res) => {
     }
   });
 
-app.get('/products', async(req, res) => {
-    const result = await Product.find();
-    // res.send({"products": result});
-    res.send(result);
-})
+// app.get('/products', async(req, res) => {
+//     const result = await Product.find();
+//     // res.send({"products": result});
+//     res.send(result);
+// })
+
+const convert = require('xml-js');
+function generateXML(products) {
+  const xmlData = {
+    products: [
+      {
+        // type: 'element',
+        // name: 'products',
+        products: products.map(product => ({
+          // type: 'element',
+          // name: 'product',
+          // elements: [
+          //   { name: 'productId', elements: [{ type: '_id', text: product._id.toString() }] },
+          //   { name: 'name', elements: [{ type: 'name', text: product.name }] },
+          //   { name: 'description', elements: [{ type: 'description', text: product.description }] },
+          //   { name: 'price', elements: [{ type: 'price', text: product.price }] },
+          //   { name: 'stockQuantity', elements: [{ type: 'stockQuantity', text: product.stockQuantity }] },
+          // ]
+          product: [
+            { _id: [{ _id: product._id.toString() }] },
+            { name: [{name: product.name }] },
+            { description: [{ description: product.description }] },
+            { price: [{ price: product.price }] },
+            { stockQuantity: [{stockQuantity: product.stockQuantity }] },
+          ]
+        }))
+      }
+    ]
+  };
+
+  const xmlOptions = { compact: true, spaces: 2 };
+  return convert.js2xml(xmlData, xmlOptions);
+}
+
+
+//REST APIs
+// Route for fetching a list of all products
+app.get('/products', async (req, res) => {
+	const result = req.params;
+  console.log(result);
+  try {
+    const products = await Product.find();
+    res.format({
+      'application/json': () => res.json(products),
+      'application/xml': () => {
+        const xmlResponse = generateXML(products);
+        res.type('application/xml').send(xmlResponse);
+      },
+      default: () => res.status(406).send('Not Acceptable')
+    });
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    res.status(500).json({ error: 'Failed to fetch products' });
+  }
+});
+
+//REST APIs
+// Product matching a specified name
+app.get('/products/:productName', async (req, res) => {
+  const productName = req.params.productName;
+  
+  try {
+    const products = await Product.find({ name: productName });
+    res.format({
+      'application/json': () => res.json(products),
+      'application/xml': () => {
+        const xmlResponse = generateXML(products);
+        res.type('application/xml').send(xmlResponse);
+      },
+      default: () => res.status(406).send('Not Acceptable')
+    });
+  } catch (error) {
+    console.error(`Error fetching products matching name ${productName}:`, error);
+    res.status(500).json({ error: `Failed to fetch products matching name ${productName}` });
+  }
+});
+
+// Route for fetching products within a specified price range
+app.get('/products/price/:low/:high', async (req, res) => {
+  const lowPrice = parseFloat(req.params.low);
+  const highPrice = parseFloat(req.params.high);
+
+  try {
+    const products = await Product.find({ price: { $gte: lowPrice, $lte: highPrice } });
+    res.format({
+      'application/json': () => res.json(products),
+      'application/xml': () => {
+        const xmlResponse = generateXML(products);
+        res.type('application/xml').send(xmlResponse);
+      },
+      default: () => res.status(406).send('Not Acceptable')
+    });
+  } catch (error) {
+    console.error(`Error fetching products within price range ${lowPrice} - ${highPrice}:`, error);
+    res.status(500).json({ error: `Failed to fetch products within price range` });
+  }
+});
 
 // Define a function to get cart items for a specific customer
 async function getCartItemsForCustomer(customerId) {
