@@ -1,8 +1,7 @@
-// import { products, fetchProducts, displayProducts, displayProductList, addToCart } from './productUtils.js';
 
 let products = [];
 fetchProducts();
-// // // fetch data from DB and execute it, next function will display the data
+// fetch data from DB and execute it, next function will display the data
 async function fetchProducts() {
   try {
     const response = await fetch('/products'); // Fetch products from the server
@@ -44,7 +43,7 @@ searchBtn.addEventListener("click", () => {
 });
 
 
-// // Function to display products in the productList that user search for
+// Function to display products in the productList that user search for
 function displayProducts(productArray) {
   searchProduct.innerHTML = "";
 
@@ -162,10 +161,13 @@ function addToCart(product, quantity) {
   }
 }
 
+// remove product from shopping cart
 function removeFromCart(productId) {
-  cartItems = cartItems.filter(item => item.product._id !== productId);
+  cartItems = cartItems.filter(item => item.product._id !== productId);  // use filter to reamin other prducts
   updateCartDisplay();
 }
+
+// increase or decrease the quantity of prduct in shopping cart
 function adjustCartItemQuantity(productId, quantityChange) {
   console.log(productId,quantityChange);
   const cartItem = cartItems.find(item => item.product._id === productId);
@@ -182,7 +184,7 @@ function adjustCartItemQuantity(productId, quantityChange) {
   }
 }
 
-// Assuming the URL is like "/customer_interface.html?customer=123"
+// URL is like "/customer_interface.html?customer=customerID"
 function getCustomerFromQuery() {
   const urlParams = new URLSearchParams(window.location.search);
   return urlParams.get('customer'); // Returns the value of the "customer" query parameter
@@ -198,18 +200,9 @@ submitOrderBtn.addEventListener("click", async () => {
   try {
 
     const customer = getCustomerFromQuery(); // Get customer ID from query or session
-    console.log('still good below');
+
     console.log(cartItems);
     
-    // let orderItems = cartItems.map(cartItem => ({
-    //   product: cartItem.product.name, // Assuming product._id is the ID field of the product
-    //   quantity: cartItem.quantity
-    // }));
-    // console.log('orderItems:', orderItems);
-    // let order = {
-    //   customer: customer,
-    //   orderItems: orderItems
-    // };
     const response = await fetch('/submit-order', {
       method: 'POST',
       headers: {
@@ -242,7 +235,7 @@ submitOrderBtn.addEventListener("click", async () => {
 // Function to fetch and display order history
 async function fetchOrderHistory(customerId) {
   try {
-    const response = await fetch(`/order-history?customerId=${customerId}`);
+    const response = await fetch(`/order-history?customerId=${customerId}`);  // will use req.query.customerID in app
     const orders = await response.json();
 
     // Display orders on the webpage
@@ -270,110 +263,3 @@ const customer = getCustomerFromQuery();
 fetchOrderHistory(customer);
 
 
-
-// // Add event listeners for quantity input changes
-// const quantityInputs = document.querySelectorAll('[id^="quantity"]');
-// quantityInputs.forEach(input => {
-//   input.addEventListener('change', () => {
-//     const productId = input.getAttribute('id').replace('quantity', '');
-//     const quantity = parseInt(input.value, 10);
-//     updateCartItemQuantity(productId, quantity);
-//   });
-// });
-
-// // ...
-
-// function updateCartItemQuantity(productId, newQuantity) {
-//   const existingCartItem = cartItems.find(item => item.product._id === productId);
-//   if (existingCartItem) {
-//     existingCartItem.quantity = newQuantity;
-//     updateCartDisplay();
-//   }
-// }
-
-// function adjustCartItemQuantity(productId, adjustment) {
-//   const existingCartItem = cartItems.find(item => item.product._id === productId);
-//   if (existingCartItem) {
-//     const newQuantity = existingCartItem.quantity + adjustment;
-//     if (newQuantity > 0 && newQuantity <= existingCartItem.product.stockQuantity) {
-//       existingCartItem.quantity = newQuantity;
-//       updateCartDisplay();
-//     }
-//   }
-// }
-
-
-
-// ... (rest of the code)
-
-// const productList = document.getElementById("productList");
-// const shoppingCart = document.getElementById("shoppingCart");
-// const orderHistory = document.getElementById("orderHistory");
-// const searchInput = document.getElementById("searchInput");
-// const searchBtn = document.getElementById("searchBtn");
-// const submitOrderBtn = document.getElementById("submitOrderBtn");
-
-
-
-
-// let cart = [];
-
-// // Function to fetch and display products
-// function fetchProducts() {
-//   // Use fetch to get product data from your API
-//   // Parse the response and populate the productList
-// }
-
-// // Function to display products in the productList
-// function displayProducts(products) {
-//   // Create HTML elements for each product and append to productList
-// }
-
-// // Function to add a product to the cart
-// function addToCart(product) {
-//   // Check if product is already in the cart
-//   // If yes, update quantity; if no, add to cart
-// }
-
-// // Function to remove a product from the cart
-// function removeFromCart(productId) {
-//   // Remove the product from the cart array
-// }
-
-// // Function to update cart UI
-// function updateCartUI() {
-//   // Clear shoppingCart and display cart items
-// }
-
-// // Event listener for search button
-// searchBtn.addEventListener("click", () => {
-//   const searchTerm = searchInput.value;
-//   // Call a function to search products based on searchTerm
-// });
-
-// // Event listener for adding product to cart
-// productList.addEventListener("click", (event) => {
-//   const target = event.target;
-//   if (target.classList.contains("add-to-cart")) {
-//     const productId = target.getAttribute("data-id");
-//     const product = getProductById(productId); // Implement this function to get product details
-//     addToCart(product);
-//     updateCartUI();
-//   }
-// });
-
-// // Event listener for removing product from cart
-// shoppingCart.addEventListener("click", (event) => {
-//   const target = event.target;
-//   if (target.classList.contains("remove-from-cart")) {
-//     const productId = target.getAttribute("data-id");
-//     removeFromCart(productId);
-//     updateCartUI();
-//   }
-// });
-
-// // Event listener for submitting order
-// submitOrderBtn.addEventListener("click", () => {
-//   // Implement the order submission logic
-//   // Update stock quantities and order history
-// });

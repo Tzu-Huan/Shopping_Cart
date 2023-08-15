@@ -41,7 +41,7 @@ app.get('/', (req, res) => {
 });
 
 
-// Route to fetch customers
+// Route to fetch customers (in index.html)
 app.get('/fetch-customers', async (req, res) => {
   try {
     const customers = await getAllCustomers();
@@ -61,47 +61,53 @@ app.get('/customer_interface.html', async(req, res) => {
 // Custom route for handling the Start Shopping form submission
 app.post('/start-shopping', (req, res) => {
     const selectedCustomer = req.body.customer;
+    
     if (selectedCustomer) {
       // Redirect to the customer interface with the selected customer as a query parameter
+      // use it in getCustomerFromQuery() line 188 in customer_interface.js
       res.redirect(`/customer_interface.html?customer=${selectedCustomer}`);
     } else {
       res.status(400).send("No customer selected.");
     }
   });
 
-// app.get('/products', async(req, res) => {
-//     const result = await Product.find();
-//     // res.send({"products": result});
-//     res.send(result);
-// })
+
 
 const convert = require('xml-js');
+// function generateXML(products) {
+//   const xmlData = {
+//     products: [
+//       {
+//         // type: 'element',
+//         // name: 'products',
+//         products: products.map(product => (
+//           [
+//             { _id: product._id.toString() } ,
+//             {name: product.name },
+//             { description: product.description },
+//             { price: product.price },
+//             { stockQuantity: product.stockQuantity },
+//           ]
+//         ))
+//       }
+//     ]
+//   };
+
+//   const xmlOptions = { compact: true, spaces: 2 };
+//   return convert.js2xml(xmlData, xmlOptions);
+// }
+
+
+// create XML from Json
 function generateXML(products) {
   const xmlData = {
-    products: [
-      {
-        // type: 'element',
-        // name: 'products',
-        products: products.map(product => ({
-          // type: 'element',
-          // name: 'product',
-          // elements: [
-          //   { name: 'productId', elements: [{ type: '_id', text: product._id.toString() }] },
-          //   { name: 'name', elements: [{ type: 'name', text: product.name }] },
-          //   { name: 'description', elements: [{ type: 'description', text: product.description }] },
-          //   { name: 'price', elements: [{ type: 'price', text: product.price }] },
-          //   { name: 'stockQuantity', elements: [{ type: 'stockQuantity', text: product.stockQuantity }] },
-          // ]
-          product: [
-            { _id: [{ _id: product._id.toString() }] },
-            { name: [{name: product.name }] },
-            { description: [{ description: product.description }] },
-            { price: [{ price: product.price }] },
-            { stockQuantity: [{stockQuantity: product.stockQuantity }] },
-          ]
-        }))
-      }
-    ]
+    products: products.map(product => ({
+      _id: { _text: product._id.toString() },
+      name: { _text: product.name },
+      description: { _text: product.description },
+      price: { _text: product.price },
+      stockQuantity: { _text: product.stockQuantity }
+    }))
   };
 
   const xmlOptions = { compact: true, spaces: 2 };
@@ -189,9 +195,10 @@ async function getCartItemsForCustomer(customerId) {
 
 // Custom route for handling order submission
 app.post('/submit-order', async (req, res) => {
+  console.log('body', req.body);
   let cartItems = req.body.cartItems; // Get the cart items from the request body
   let customerId = req.body.customer;
-  console.log('NAMWE');
+
   
   if (!Array.isArray(cartItems) || cartItems.length === 0) {
     return res.status(400).send("Invalid cart items.");
@@ -199,7 +206,7 @@ app.post('/submit-order', async (req, res) => {
 
   try {
     // Calculate the total price of the order
-    const totalPrice = cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0);
+    const totalPrice = cartItems.reduce((total, item) => total + item.product.price * item.quantity, 0);  //The initial value of the accumulator is 0.
 
     // Update product quantities and save the order
     for (const cartItem of cartItems) {
@@ -227,15 +234,11 @@ app.post('/submit-order', async (req, res) => {
       totalAmount: totalPrice
     });
     console.log('New Order:', newOrder);
-    
-    
-
-
     console.log('Saving new order...');
     await newOrder.save();
 
-
     res.status(200).send("Order submitted successfully.");
+
   } catch (error) {
     console.error("Error submitting order:", error);
     res.status(500).send("Failed to submit order. Please try again.");
@@ -246,9 +249,9 @@ app.post('/submit-order', async (req, res) => {
 
 
 
-// API endpoint to fetch order history for a specific customer
+// fetch order history for a specific customer
 app.get('/order-history', async (req, res) => {
-  const customerId = req.query.customerId; // Get customerId from query parameters or session
+  const customerId = req.query.customerId; // Get customerId from query
   try {
     const orders = await Order.find({ customer: customerId }).populate('products.product');
     res.json(orders);
@@ -262,11 +265,8 @@ app.get('/order-history', async (req, res) => {
 // Route for adding a new product
 app.post('/addproducts', async (req, res) => {
   const newProduct = req.body; // New product data from client
-  console.log('ger', newProduct);
-  console.log('Creating new order...');
 
   const addProduct = new Product({
-    
     name: newProduct.name,
     description: newProduct.description,
     price: newProduct.price,
@@ -277,35 +277,14 @@ app.post('/addproducts', async (req, res) => {
   await addProduct.save();
 
   res.status(200).send("Product add successfully.");
-  // DB.push(newProduct); // Insert into the database (in-memory example)
-  // res.status(201).json(newProduct); // Respond with the newly added product
+
 });
-
-// // Route for deleting a product
-// app.delete('/delete/:productId', async (req, res) => {
-//   const productId = req.params.productId; // Get the product ID from the route parameter
-
-//   try {
-//     const deletedProduct = await Product.findByIdAndDelete(productId);
-//     if (deletedProduct) {
-//       console.log(`Product with ID ${productId} deleted.`);
-//       res.status(200).send(`Product with ID ${productId} deleted.`);
-//     } else {
-//       console.error(`Product with ID ${productId} not found.`);
-//       res.status(404).send(`Product with ID ${productId} not found.`);
-//     }
-//   } catch (error) {
-//     console.error(`Error deleting product with ID ${productId}:`, error);
-//     res.status(500).send(`Failed to delete product with ID ${productId}.`);
-//   }
-// });
-
 
 ////
 // Route for deleting a product
 app.delete('/delete/:productId', async (req, res) => {
   const productId = req.params.productId; // Get the product ID from the route parameter
-  console.log('go to here');
+
   try {
     
     // Check if the product is associated with any orders
@@ -359,7 +338,7 @@ app.put('/update-quantity/:orderId/:productId', async (req, res) => {
   const orderId = req.params.orderId;
   const productId = req.params.productId;
   const newQuantity = parseInt(req.body.newQuantity);
-  console.log('idddd: ', productId);
+
   try {
     // Find the order by its ID
     const order = await Order.findById(orderId);
@@ -367,18 +346,9 @@ app.put('/update-quantity/:orderId/:productId', async (req, res) => {
     // Find the product within the order's products array
     const productIndex = order.products.findIndex(element => element.product.toString() == productId);
     
-    console.log(order.products[0].product.toString());
-
-    
     if (productIndex !== -1) {
         subract = newQuantity - order.products[productIndex].quantity;
         order.products[productIndex].quantity = newQuantity;  // new quantity of order
-
-         // Check if the new quantity exceeds the available stock
-        //  const product = await Product.findById(productId);
-        //  if (newQuantity > product.stockQuantity) {
-        //   return res.status(400).send(`Requested quantity exceeds available stock for product ${product.name}.`);
-        // }
 
         const product = await Product.findById(productId);
         console.log(product);
@@ -386,13 +356,11 @@ app.put('/update-quantity/:orderId/:productId', async (req, res) => {
         if (subract > product.stockQuantity) {
           return res.status(400).send(`Requested quantity exceeds available stock for product ${product.name}.`);
         }
-        console.log('chieck point');
         
         // Update the order with the new product quantity
-        // check add or reduce
-        console.log('add more:', subract);
-        if(subract >= 0){
-          product.stockQuantity -= subract;
+        // check increase or decrease
+        if(subract >= 0){  // order increase
+          product.stockQuantity -= subract;  // then decrease stock
           await product.save();
           await order.save();
         }else{
@@ -433,26 +401,22 @@ app.delete('/delete-product/:orderId/:productId', async (req, res) => {
         deleteQuantity = order.products[productIndex].quantity;
         order.products[productIndex].quantity = 0;  // new quantity of order
 
-
-
-         // Check if the new quantity exceeds the available stock
-        //  const product = await Product.findById(productId);
-        //  if (newQuantity > product.stockQuantity) {
-        //   return res.status(400).send(`Requested quantity exceeds available stock for product ${product.name}.`);
-        // }
-
         const product = await Product.findById(productId);
         console.log(product);
 
-        // Update the order with the new product quantity
-        // check add or reduce
- 
+
         product.stockQuantity += deleteQuantity;
         order.products.splice(productIndex, 1); // Remove the product from the array
-        await product.save();
-        await order.save();
-        
-        res.status(200).send(`${productId} in order with ID ${orderId} deleted.`);
+        // If there are no products left in the order, delete the entire order (last product in the order)
+        if (order.products.length === 0) {
+          await Order.deleteOne({ _id: orderId });
+          res.status(200).send(`Order with ID ${orderId} deleted successfully.`);
+        } else {
+          await product.save();
+          await order.save();
+          res.status(200).send(`${productId} in order with ID ${orderId} deleted.`);
+        }
+
     } else {
         console.log('error');
         res.status(404).send(`Product with ID ${productId} not found in order with ID ${orderId}.`);
@@ -461,10 +425,7 @@ app.delete('/delete-product/:orderId/:productId', async (req, res) => {
     console.error(`Error updating quantity for product ${productId} in order ${orderId}:`, error);
     res.status(500).send(`delete failed: ${productId} in order ${orderId}.`);
 }
-  // // Delete the specified product from the order
-  // // ...
 
-  // res.status(200).send(`Product with ID ${productId} deleted from order with ID ${orderId}.`);
 });
 
 // Route for deleting an order (whole order)

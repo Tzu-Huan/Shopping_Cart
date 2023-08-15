@@ -22,7 +22,6 @@ const productSchema = new mongoose.Schema({
 const Product = mongoose.model('Product', productSchema);
 
 // Create a schema for the orders
-// Create a schema for the orders
 const orderSchema = new mongoose.Schema({
   // customer: { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
   customer: { type: String, ref: 'Customer' },
@@ -39,10 +38,11 @@ const orderSchema = new mongoose.Schema({
 // Create a model for the Order
 const Order = mongoose.model('Order', orderSchema);
 
+// Create a schema for the customers
 const customerSchema = new mongoose.Schema({
   name: String,
 });
-
+// Create a model for the Customer
 const Customer = mongoose.model('Customer', customerSchema);
 
 
@@ -98,26 +98,3 @@ async function getAllCustomers() {
 
 module.exports = { Product, insertSampleProducts, Order, Customer, insertSampleCustomers, getAllCustomers }; // Export the Product model and insertSampleProducts function
 
-// // Insert sample products into the database
-// Product.insertMany(sampleProducts)
-//   .then(() => {
-//     console.log('Sample products inserted successfully.');
-//     // mongoose.connection.close();
-//   })
-//   .catch(error => {
-//     console.error('Error inserting sample products:', error);
-//     // mongoose.connection.close();
-//   });
-
-
-  
-// module.exports = Product; // Export the Product model
-// Product.find(function(err, products){
-//   if(err){
-//     console.log(err);
-//   } else{
-//     products.forEach(function(product){
-//       console.log(product.name);
-//     })
-//   }
-// })

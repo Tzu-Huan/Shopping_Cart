@@ -1,19 +1,22 @@
-// import { fetchProducts, displayProducts, displayProductList, products } from './productUtils.js';
 
 let products = [];
-fetchProducts();
+
 
 async function fetchProducts() {
     try {
       const response = await fetch('/products'); // Fetch products from the server
       products = await response.json();
+      
+      console.log('fetching products...');
+      console.log(products);
       //displayProductList();  // display all products before seaerch
     } catch (error) {
       console.error('Error fetching product list:', error);
     }
   }
-  fetchProducts();
+fetchProducts();
 
+// event listener of serach button
 searchBtn.addEventListener("click", () => {
     console.log('search button clicked!')
     const searchTerm = searchInput.value.toLowerCase();
@@ -25,7 +28,7 @@ searchBtn.addEventListener("click", () => {
     displayProducts(filteredProducts);
   });
   
-// // Function to display products in the productList that user search for
+// // Function to display products in the productList that user SEARCH for (line 154 'displayProductList' is ALL prodcut)
 function displayProducts(productArray) {
     searchProduct.innerHTML = "";
   
@@ -40,11 +43,11 @@ function displayProducts(productArray) {
         <p>Stock Quantity: ${product.stockQuantity}</p>
         <label for="quantity${product.id}">Quantity:</label>
         <input type="number" id="quantity${product.id}" min="1" max="${product.stockQuantity}" value="1">
-        <button class="updateProductButton" data-id="${product._id}">Update</button>
+        <button class="updateProductButton" data-id="${product._id}">Update</button>  
         <button class="deleteProductButton" data-id="${product._id}">Delete</button>
       `;
 
-        // Event listener for updating a product
+        // Event listener for updating a product, a couple of input box will show 
         const updateProductButton = productDiv.querySelector(".updateProductButton");
         updateProductButton.addEventListener("click", () => {
             const updateForm = document.createElement("form");
@@ -71,16 +74,16 @@ function displayProducts(productArray) {
                 stockQuantity: parseInt(document.getElementById("updateStock").value, 10)
             };
 
-            await updateProduct(product._id, updatedProduct);
+            await updateProduct(product._id, updatedProduct);  // this fuction define in nex code block (about line 100)
 
             // Close the update form and refresh the product list
             updateForm.remove();
             fetchProducts();
             });
 
-    // Append the update form to the productDiv
-        productDiv.appendChild(updateForm);
-        });
+            // Append the update form to the productDiv
+            productDiv.appendChild(updateForm);
+            });
     
         // Event listener for deleting a product
         const deleteProductButton = productDiv.querySelector(".deleteProductButton");
@@ -89,20 +92,8 @@ function displayProducts(productArray) {
             console.log(`Delete product with ID: ${product._id}`);
             deleteProduct(product._id);
         });
-      // Add event listener to the "Add to Cart" button
-    //   const addToCartButton = productDiv.querySelector(".addToCartButton");
-    //   addToCartButton.addEventListener("click", () => {
-        
-    //     const quantityInput = productDiv.querySelector(`#quantity${product.id}`);
-    //     const quantity = parseInt(quantityInput.value, 10);
-    //     if (quantity > 0 && quantity <= product.stockQuantity) {
-    //       addToCart(product, quantity); // Call the addToCart function
-    //     } else {
-    //       alert("Invalid quantity or insufficient stock.");
-    //     }
-    //   });
   
-      searchProduct.appendChild(productDiv);
+        searchProduct.appendChild(productDiv);
     });
   }
 
@@ -121,7 +112,7 @@ async function updateProduct(productId, updatedProduct) {
         console.log(`Product with ID ${productId} updated.`);
         // Refresh the product list to reflect changes
         fetchProducts();
-        location.reload();
+        location.reload();  // refresh the webpage
         alert(`Product with ID ${productId} has been successfully updated.`);
       } else {
         const errorMessage = await response.text(); // Get the error message from the response
@@ -133,39 +124,20 @@ async function updateProduct(productId, updatedProduct) {
     }
   }
   
-  // Event listener for submitting the product update form
-//   updateProductButton.addEventListener("submit", async (event) => {
-//     event.preventDefault();
-  
-//     const productId = updateProductIdInput.value;
-//     const updatedProduct = {
-//       name: updateProductNameInput.value,
-//       description: updateProductDescriptionInput.value,
-//       price: parseFloat(updateProductPriceInput.value),
-//       stockQuantity: parseInt(updateProductStockInput.value)
-//     };
-  
-//     updateProduct(productId, updatedProduct);
-//   });
-  
-//////////
+
 // Function to delete a product
 async function deleteProduct(productId) {
     try {
       const response = await fetch(`/delete/${productId}`, {
         method: "DELETE"
       });
-      console.log('doing good');
+
       if (response.ok) {
         const successMessage = await response.text();
         alert(successMessage);
-        // console.log(`Product with ID ${productId} deleted.`);
-        // Update the UI by removing the deleted product element
-        // productDiv.remove();
-                // Refresh the product list to reflect changes
-                fetchProducts();
-                location.reload();
-                // alert(`Product with ID ${productId} has been successfully deleted.`); // Success message alert
+        fetchProducts();
+        location.reload();
+
       } else {
         const errorMessage = await response.text(); // Get the error message from the response
         alert(errorMessage); // Display the error message in an alert
@@ -177,7 +149,7 @@ async function deleteProduct(productId) {
 
   
   
-
+// display ALL prodcuts (line 32 'displayProducts' is SEARCH product)
 function displayProductList() {
 try {
     const productList = document.getElementById('productList');
@@ -195,18 +167,7 @@ try {
 }
 }
 
-  // Event listener for search button will execute previous function: displayProducts(productArray)
-  searchBtn.addEventListener("click", () => {
-    console.log('search button clicked!!!!!')
-    const searchTerm = searchInput.value.toLowerCase();
-    const filteredProducts = products.filter(product => 
-      product.name.toLowerCase().includes(searchTerm) || 
-      product.description.toLowerCase().includes(searchTerm)
-    );
-    console.log(filteredProducts);
-    displayProducts(filteredProducts);
-  });
-// Function to display products maintenance form
+// Function to display products maintenance form (to ADD new product)
 function displayProductsMaintenanceForm() {
     addProdcut.innerHTML = '';
   
@@ -242,56 +203,40 @@ function displayProductsMaintenanceForm() {
 
       
     try {
-    // Make an API call to add the new product to the database
-    const response = await fetch('/addproducts', {
-        method: 'POST',
-        headers: {
-        'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newProduct),
-    });
-    console.log(response);
-    if (response.ok) {
-        // Refresh the product list to reflect changes
-        fetchProducts();
-        location.reload();
-    } else {
-        console.error('Failed to add new product to the database.');
-    }
+        // Make an API call to add the new product to the database
+        const response = await fetch('/addproducts', {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newProduct),
+        });
+
+        console.log(response);
+
+        if (response.ok) {
+            // Refresh the product list to reflect changes
+            fetchProducts();
+            location.reload();
+        } else {
+            console.error('Failed to add new product to the database.');
+        }
+
     } catch (error) {
-    console.error('Error adding new product:', error);
+        console.error('Error adding new product:', error);
     }
-    //   // Add new product to the products array and update display
-    //   products.push(newProduct);
-    //   displayProductList();
+
     });
   
     // Append the add product form to the searchProduct element
     addProdcut.appendChild(addProductForm);
-    
 
+}
   
+// Call the displayProductsMaintenanceForm function so when load in the page can show 
+displayProductsMaintenanceForm();
   
-    // Display the existing products with update and delete buttons
-    // products.forEach(product => {
-    //   const productDiv = document.createElement("div");
-    //   productDiv.classList.add("product");
-    //   productDiv.innerHTML = `
-    //     <h3>${product.name} id: ${product._id}</h3>
-    //     <p>Description: ${product.description}</p>
-    //     <p>Price: $${product.price.toFixed(2)}</p>
-    //     <p>Stock Quantity: ${product.stockQuantity}</p>
-    //     <button class="updateProductButton" data-id="${product._id}">Update</button>
-    //     <button class="deleteProductButton" data-id="${product._id}">Delete</button>
-    //   `;
-    //   searchProduct.appendChild(productDiv);
-    // });
-  }
-  
-  // Call the displayProductsMaintenanceForm function
-  displayProductsMaintenanceForm();
-  
- // Function to fetch customers from the server
+// Function to fetch customers from the server
 async function fetchCustomers() {
     try {
       const response = await fetch('/fetch-customers');
@@ -311,7 +256,7 @@ async function fetchCustomers() {
  
  
  
-  // Function to display customers in the customer list
+// Function to display customers in the customer list
 function displayCustomers(customers) {
     const customerList = document.getElementById('customerList');
   
@@ -330,23 +275,23 @@ function displayCustomers(customers) {
     console.log('look',customerItems);
     customerItems.forEach(customerItem => {
         customerItem.addEventListener('click', async () => {
-        console.log('customer click');
-        const customerId = customerItem.getAttribute('data-customer-id'); // Get the customer ID from the data attribute
-        const customerName = customerItem.getAttribute('data-customer-name'); // Get the customer name from the data attribute
+            console.log('specific customer click');
+            const customerId = customerItem.getAttribute('data-customer-id'); // Get the customer ID from the data attribute
+            const customerName = customerItem.getAttribute('data-customer-name'); // Get the customer name from the data attribute
 
-        // const customerId = customerItem.textContent; // Assuming the customer name is the same as the ID
-        const orderHistory = await fetchOrderHistory(customerId); // Fetch the order history for the customer
-        displayOrderHistory(orderHistory, customerName, customerId); // Display the order history
+            // const customerId = customerItem.textContent; // Assuming the customer name is the same as the ID
+            const orderHistory = await fetchOrderHistory(customerId); // Fetch the order history for the customer
+            displayOrderHistory(orderHistory, customerName, customerId); // Display the order history
         });
     });
   }
 
-
+// when click the button, all customer will show
 customerBtn.addEventListener("click", async () => {
     console.log('customer button clicked!!!!!');
     const customers = await fetchCustomers();
     displayCustomers(customers);
-    customerBtn.style.display = 'none';
+    customerBtn.style.display = 'none';  // vanish the display customer button in case of user keep clicking it
 });
 
 
@@ -359,7 +304,6 @@ async function fetchOrderHistory(customerId) {
      
       if (response.ok) {
         const orderHistory = await response.json();
-        console.log('here',orderHistory);
         return orderHistory;
       } else {
         console.error(`Failed to fetch order history for customer ${customerId} from the server.`);
@@ -369,36 +313,10 @@ async function fetchOrderHistory(customerId) {
       console.error(`Error fetching order history for customer ${customerId}:`, error);
       return [];
     }
-  }
+}
 
-//   function displayOrderHistory(orderHistory, customerName) {
-//     // Clear any previous order history
-    
-//     const orderHistoryContainer = document.getElementById('orderHistory');
-//     orderHistoryContainer.innerHTML = '';
-  
-//     // Display the customer name
-//     const customerNameElement = document.createElement('h2');
-//     customerNameElement.textContent = `Order History for ${customerName}`;
-//     orderHistoryContainer.appendChild(customerNameElement);
-
-//     // Display each order in the order history
-//     orderHistory.forEach(order => {
-        
-//       const orderDiv = document.createElement("div");
-//       orderDiv.classList.add("order");
-//       orderDiv.innerHTML = `
-//         <h3>Order ID: ${order._id}</h3>
-//         <p>Products:  <br>${order.products.map(product => `${product.name} - Quantity: ${product.quantity}`).join('<br>')}</p>
-//         <p>Total Amount: $${order.totalAmount.toFixed(2)}</p>
-//         <p>Order Date: ${new Date(order.orderDate).toLocaleString()}</p>
-//       `;
-  
-//       orderHistoryContainer.appendChild(orderDiv);
-//     });
-//   }
-  
-  function displayOrderHistory(orderHistory, customerName, customerId) {
+// call in line 284 (inside displayCustomers in line 260)  
+function displayOrderHistory(orderHistory, customerName, customerId) {
     // Clear any previous order history
     
     const orderHistoryContainer = document.getElementById('orderHistory');
@@ -461,7 +379,6 @@ async function fetchOrderHistory(customerId) {
                         const orderHistory = await fetchOrderHistory(customerId);
                        
                         location.reload();
-                        displayOrderHistory(orderHistory);
                     } else {
                         const errorMessage = await response.text(); // Get the error message from the response
                         alert(errorMessage); // Display the error message in an alert
@@ -498,7 +415,7 @@ async function fetchOrderHistory(customerId) {
                     });
                     
                     if (response.ok) {
-                        console.log('check f');
+
                         // Handle success, such as refreshing the order history
                         const orderHistory = await fetchOrderHistory(customerId);
                        
@@ -507,7 +424,6 @@ async function fetchOrderHistory(customerId) {
                     } else {
                         const errorMessage = await response.text(); // Get the error message from the response
                         alert(errorMessage); // Display the error message in an alert
-                        alert('test');
                         console.error('Failed to update quantity:', response.statusText);
 
 
@@ -530,7 +446,6 @@ async function fetchOrderHistory(customerId) {
            
             const deleteOrderUrl = `/delete-order/${orderId}`;
   
-            console.log('f:', orderId);
             try {
                 const response = await fetch(deleteOrderUrl, {
                     method: 'DELETE',
@@ -566,7 +481,6 @@ deleteProductButtons.forEach(deleteProductButton => {
     deleteProductButton.addEventListener('click', async () => {
         const orderId = deleteProductButton.getAttribute('data-order-id');
         const productId = deleteProductButton.getAttribute('data-product-id');
-        // Perform the delete product action using a fetch request
-        // ...
+
     });
 });
