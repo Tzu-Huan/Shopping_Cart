@@ -2,6 +2,9 @@
 
 - This project utilizes Node.js (Express and Mongoose) along with MongoDB.
 - link: https://github.com/Tzu-Huan/Shopping_Cart/tree/master
+## Demo
+### Part 1: Customer Interface
+https://github.com/Tzu-Huan/Shopping_Cart/assets/121821260/3aa7d5e5-2e7a-4d15-b670-d098888a7290
 ## How to run this project?
 https://github.com/Tzu-Huan/Shopping_Cart/assets/121821260/32f33190-f2c7-4443-8715-0d66631d7c5c
 ### 1. Prepare MongoDB:
