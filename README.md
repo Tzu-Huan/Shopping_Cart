@@ -5,6 +5,8 @@
 ## Demo
 ### Part 1: Customer Interface
 https://github.com/Tzu-Huan/Shopping_Cart/assets/121821260/3aa7d5e5-2e7a-4d15-b670-d098888a7290
+### Part 2: Admin Interface
+https://github.com/Tzu-Huan/Shopping_Cart/assets/121821260/bc9eff3e-a276-427b-8402-eb47af724cd0
 ## How to run this project?
 https://github.com/Tzu-Huan/Shopping_Cart/assets/121821260/32f33190-f2c7-4443-8715-0d66631d7c5c
 ### 1. Prepare MongoDB:
